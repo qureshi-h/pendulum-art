@@ -1,33 +1,51 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
-import { setTimeout } from "timers";
+import ColourPalette from "./ColourPalette";
 
-const airResistance = 0.01;
-let xAmplitude = 500;
-let yAmplitude = 300;
+let airResistance = 0.01;
 let angularFrequency = 0.5;
 
 const Art = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    const [ready, setReady] = useState<boolean>(false);
     const [pause, setPause] = useState<boolean>(true);
-    const [clear, setClear] = useState<boolean>(false);
     const [reset, setReset] = useState<boolean>(false);
+
     const [lineWidth, setLineWidth] = useState<number>(2);
+    const [origin, setOrigin] = useState<Array<number>>([]);
+    const [end, setEnd] = useState<Array<number>>([]);
+    const [amplitude, setAmplitude] = useState<Array<number>>([]);
+
+    const [colorChange, setColorChange] = useState<boolean>(false);
+    const [color, setColor] = useState<string>("#aabbcc");
+
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const rafIDRef = useRef<number>();
     const tRef = useRef<number>(0);
 
     let t = 0;
 
-    const handleKeyDown = (e: any) => {
-        console.log(e);
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        setContext(ctx);
+        setReady(true);
+    }, []);
+
+    const handleKeyDown = (e: any) => {
         if (e.code === "Space") {
             setPause((prevState) => !prevState);
         }
 
-        if (e.code === "KeyN") {
-            setClear((prevState) => !prevState);
+        if (e.code === "KeyP") {
+            setColorChange((prevState) => !prevState);
         }
 
         if (e.code === "KeyR") {
@@ -35,42 +53,77 @@ const Art = () => {
         }
 
         if (e.code === "ArrowUp") {
-            if (lineWidth < 10) setLineWidth((prevState) => prevState + 1);
+            setLineWidth((prevState) => {
+                if (prevState < 10) return prevState + 1;
+                return prevState;
+            });
         }
 
         if (e.code === "ArrowDown") {
-            if (lineWidth > 1) setLineWidth((prevState) => prevState - 1);
+            setLineWidth((prevState) => {
+                if (prevState > 1) return prevState - 1;
+                return prevState;
+            });
+        }
+    };
+
+    const handleMouseDown = (e: any) => {
+        if (ready) {
+            setOrigin([e.clientX, e.clientY]);
+        }
+    };
+
+    const handleMouseUp = (e: any) => {
+        if (ready) {
+            setEnd([e.clientX, e.clientY]);
         }
     };
 
     useEffect(() => {
+        // set amplitude
+        if (origin.length > 1 && end.length === 2) {
+            setReady(false);
+            console.log(
+                "setting amp",
+                Math.abs(end[0] - origin[0]),
+                Math.abs(end[1] - origin[1])
+            );
+
+            setAmplitude([
+                Math.abs(end[0] - origin[0]),
+                Math.abs(end[1] - origin[1]),
+            ]);
+            tRef.current = 0;
+            setPause(false);
+        }
+    }, [end]);
+
+    useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
+        // window.addEventListener("mousedown", handleMouseDown);
+        // window.addEventListener("mouseup", handleMouseUp);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
+            // window.removeEventListener("mousedown", handleMouseDown);
+            // window.removeEventListener("mouseup", handleMouseUp);
         };
-    }, []);
+    }, [ready]);
 
     useEffect(() => {
-        //pause
-        if (context && !pause) {
+        // pause
+        console.log(pause, colorChange);
+
+        if (!pause && !colorChange) {
             draw();
         } else {
             if (rafIDRef.current) {
                 cancelAnimationFrame(rafIDRef.current);
             }
+            if (!colorChange) setReady(true);
+            else setReady(true);
         }
-    }, [pause]);
-
-    useEffect(() => {
-        // clear
-        if (clear) {
-            setClear((prevState) => !prevState);
-
-            if (context)
-                context.clearRect(0, 0, window.innerWidth, window.innerHeight); // Clear canvas
-        }
-    }, [clear]);
+    }, [pause, colorChange]);
 
     useEffect(() => {
         // line Width
@@ -84,50 +137,48 @@ const Art = () => {
         // reset
         if (reset) {
             setReset((prevState) => !prevState);
-
             if (context)
                 context.clearRect(0, 0, window.innerWidth, window.innerHeight); // Clear canvas
             tRef.current = 0;
+            setAmplitude([]);
+            setOrigin([]);
+            setEnd([]);
+            setReady(true);
+            setPause(true);
         }
-    }, [reset ]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        setContext(ctx);
-    }, []);
+    }, [reset]);
 
     const draw = () => {
+        console.log(pause, origin, amplitude);
+
+        if (pause || origin.length < 2) return;
+
         if (!context) return;
         t = tRef.current - 0.1;
 
+        // airResistance = Math.random() * 0.01 + 0.005;
         let X =
-            xAmplitude *
+            amplitude[0] *
                 Math.exp(-airResistance * t) *
                 Math.sin(angularFrequency * t) +
-            window.innerWidth / 2;
+            origin[0];
         let Y =
-            yAmplitude *
+            amplitude[1] *
                 Math.exp(-airResistance * t) *
                 Math.cos(angularFrequency * t) +
-            window.innerHeight / 2;
+            origin[1];
 
         const animate = () => {
             const newX =
-                xAmplitude *
+                amplitude[0] *
                     Math.exp(-airResistance * t) *
                     Math.sin(angularFrequency * t) +
-                window.innerWidth / 2;
+                origin[0];
             const newY =
-                yAmplitude *
+                amplitude[1] *
                     Math.exp(-airResistance * t) *
                     Math.cos(angularFrequency * t) +
-                window.innerHeight / 2;
+                origin[1];
 
             context.beginPath();
             context.moveTo(X, Y);
@@ -136,7 +187,7 @@ const Art = () => {
             X = newX;
             Y = newY;
 
-            context.strokeStyle = "#000";
+            context.strokeStyle = color;
             context.lineWidth = lineWidth;
             context.stroke();
 
@@ -150,7 +201,16 @@ const Art = () => {
 
     return (
         <div className="canvas">
-            <canvas ref={canvasRef} />
+            {colorChange && (
+                <div className="colourPalette">
+                    <ColourPalette color={color} setColor={setColor} />
+                </div>
+            )}
+            <canvas
+                ref={canvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+            />
         </div>
     );
 };

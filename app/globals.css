@@ -30,3 +30,8 @@ body {
     justify-content: center;
     background-color: aliceblue;
 }
+
+.colourPalette {
+    position: absolute;
+    z-index: 100;
+}
