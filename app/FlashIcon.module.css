@@ -1,0 +1,25 @@
+.container {
+    position: absolute;
+    align-items: center;
+     bottom: 10vh;
+}
+
+.icon {
+    cursor: pointer;
+    font-size: 8rem;
+    color: #065a93;
+}
+
+@keyframes flashAnimation {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.flash {
+    animation: flashAnimation 3s infinite;
+}

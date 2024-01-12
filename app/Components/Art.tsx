@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import ColourPalette from "./ColourPalette";
+import Status from "./Status";
 
 let airResistance = 0.01;
 let angularFrequency = 0.5;
@@ -24,6 +25,8 @@ const Art = () => {
     const rafIDRef = useRef<number>();
     const tRef = useRef<number>(0);
 
+    const [displayStatus, setDisplayStatus] = useState<number>(0);
+
     let t = 0;
 
     useEffect(() => {
@@ -39,9 +42,19 @@ const Art = () => {
         setReady(true);
     }, []);
 
+    useEffect(() => {
+        if (displayStatus) {
+            const timeoutId = setTimeout(() => {
+                setDisplayStatus(0);
+            }, 3000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [displayStatus]);
+
     const handleKeyDown = (e: any) => {
         if (e.code === "Space") {
             setPause((prevState) => !prevState);
+            setDisplayStatus((prev) => prev + 1);
         }
 
         if (e.code === "KeyP") {
@@ -83,12 +96,6 @@ const Art = () => {
         // set amplitude
         if (origin.length > 1 && end.length === 2) {
             setReady(false);
-            console.log(
-                "setting amp",
-                Math.abs(end[0] - origin[0]),
-                Math.abs(end[1] - origin[1])
-            );
-
             setAmplitude([
                 Math.abs(end[0] - origin[0]),
                 Math.abs(end[1] - origin[1]),
@@ -100,19 +107,13 @@ const Art = () => {
 
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
-        // window.addEventListener("mousedown", handleMouseDown);
-        // window.addEventListener("mouseup", handleMouseUp);
-
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
-            // window.removeEventListener("mousedown", handleMouseDown);
-            // window.removeEventListener("mouseup", handleMouseUp);
         };
     }, [ready]);
 
     useEffect(() => {
         // pause
-        console.log(pause, colorChange);
 
         if (!pause && !colorChange) {
             draw();
@@ -156,7 +157,6 @@ const Art = () => {
         if (!context) return;
         t = tRef.current - 0.1;
 
-        // airResistance = Math.random() * 0.01 + 0.005;
         let X =
             amplitude[0] *
                 Math.exp(-airResistance * t) *
@@ -179,6 +179,8 @@ const Art = () => {
                     Math.exp(-airResistance * t) *
                     Math.cos(angularFrequency * t) +
                 origin[1];
+
+            // airResistance = Math.random() * 0.0005 + 0.005;
 
             context.beginPath();
             context.moveTo(X, Y);
@@ -206,6 +208,8 @@ const Art = () => {
                     <ColourPalette color={color} setColor={setColor} />
                 </div>
             )}
+
+            {displayStatus !== 0 && <Status paused={pause} />}
             <canvas
                 ref={canvasRef}
                 onMouseDown={handleMouseDown}
