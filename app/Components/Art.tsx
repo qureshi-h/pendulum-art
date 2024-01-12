@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import ColourPalette from "./ColourPalette";
+import downloadImage from "./ImageDownloader";
 import Status from "./Status";
 
 let airResistance = 0.01;
@@ -55,24 +56,18 @@ const Art = () => {
         if (e.code === "Space") {
             setPause((prevState) => !prevState);
             setDisplayStatus((prev) => prev + 1);
-        }
-
-        if (e.code === "KeyP") {
+        } else if (e.code === "KeyP") {
             setColorChange((prevState) => !prevState);
-        }
-
-        if (e.code === "KeyR") {
+        } else if (e.code === "KeyR") {
             setReset((prevState) => !prevState);
-        }
-
-        if (e.code === "ArrowUp") {
+        } else if (e.code === "KeyS") {
+            downloadImage(canvasRef);
+        } else if (e.code === "ArrowUp") {
             setLineWidth((prevState) => {
                 if (prevState < 10) return prevState + 1;
                 return prevState;
             });
-        }
-
-        if (e.code === "ArrowDown") {
+        } else if (e.code === "ArrowDown") {
             setLineWidth((prevState) => {
                 if (prevState > 1) return prevState - 1;
                 return prevState;
