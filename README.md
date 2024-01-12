@@ -21,7 +21,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Current supported commands
-- Click and drag to set the center, and the minor / major axis.
+- Click and drag to set the center, and the minor / major axis (Available only when the animation is paused).
 - "Space" - Pause / Resume Animation
 - "P" - Open Colour Palette
 - "R" - Reset Canvas
