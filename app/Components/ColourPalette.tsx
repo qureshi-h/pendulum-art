@@ -4,6 +4,8 @@ import { HexColorPicker } from "react-colorful";
 import Draggable, { DraggableCore } from "react-draggable";
 import styled from "styled-components";
 
+// @ts-ignore
+
 const StyledColourPalette = styled.div`
     display: flex;
     flex-direction: column;
