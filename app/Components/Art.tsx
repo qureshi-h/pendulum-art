@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import ColourPalette from "./ColourPalette";
 import downloadImage from "./ImageDownloader";
 import Status from "./Status";
+import KeyBindings from "./Keybindings";
 
 let airResistance = 0.01;
 let angularFrequency = 0.5;
@@ -27,8 +28,29 @@ const Art = () => {
     const tRef = useRef<number>(0);
 
     const [displayStatus, setDisplayStatus] = useState<number>(0);
+    const [displayKeyBindings, setDisplayKeyBindings] = useState<boolean>(true);
 
     let t = 0;
+
+    const handleColourChange = () => {
+        if (colorChange) {
+            setColorChange(false);
+        } else {
+            if (displayKeyBindings) setDisplayKeyBindings(false);
+            setColorChange(true);
+        }
+    };
+
+    const handleDisplayBindings = () => {
+        console.log(displayKeyBindings);
+
+        if (displayKeyBindings) {
+            setDisplayKeyBindings(false);
+        } else {
+            if (colorChange) setColorChange(false);
+            setDisplayKeyBindings(true);
+        }
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -57,11 +79,13 @@ const Art = () => {
             setPause((prevState) => !prevState);
             setDisplayStatus((prev) => prev + 1);
         } else if (e.code === "KeyP") {
-            setColorChange((prevState) => !prevState);
+            handleColourChange();
         } else if (e.code === "KeyR") {
             setReset((prevState) => !prevState);
         } else if (e.code === "KeyS") {
             downloadImage(canvasRef);
+        } else if (e.code === "KeyH") {
+            handleDisplayBindings();
         } else if (e.code === "ArrowUp") {
             setLineWidth((prevState) => {
                 if (prevState < 10) return prevState + 1;
@@ -105,7 +129,7 @@ const Art = () => {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [ready]);
+    }, [ready, displayKeyBindings, colorChange]);
 
     useEffect(() => {
         // pause
@@ -199,12 +223,17 @@ const Art = () => {
     return (
         <div className="canvas">
             {colorChange && (
-                <div className="colourPalette">
-                    <ColourPalette color={color} setColor={setColor} />
+                <div className="colourPaletteBox">
+                    <ColourPalette
+                        color={color}
+                        setColor={setColor}
+                        handleColourChange={handleColourChange}
+                    />
                 </div>
             )}
 
             {displayStatus !== 0 && <Status paused={pause} />}
+            {displayKeyBindings && <KeyBindings />}
             <canvas
                 ref={canvasRef}
                 onMouseDown={handleMouseDown}

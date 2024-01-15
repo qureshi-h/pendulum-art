@@ -28,10 +28,60 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: aliceblue;
 }
 
-.colourPalette {
+.colourPaletteBox {
     position: absolute;
+    top: 10vh;
+    left: 10vw;
     z-index: 100;
+}
+
+.keyBindingsBox {
+    position: absolute;
+    background-color: #fffee0;
+    padding: 3rem;
+    border-radius: 1rem;
+    border: 0.1em black solid;
+    /* display: flex; */
+    justify-content: center;
+}
+.key-bindings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 1rem;
+    margin-top: 1rem;
+}
+
+.key-binding {
+    border: 0.1rem solid #ccc;
+    padding: 1em;
+    text-align: center;
+    background-color: #f1d3b2;
+    border-radius: 2rem;
+}
+
+.key {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.description {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.colour-palette {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.color-picker-container {
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: inline-block;
 }
