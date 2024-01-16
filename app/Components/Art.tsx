@@ -42,8 +42,6 @@ const Art = () => {
     };
 
     const handleDisplayBindings = () => {
-        console.log(displayKeyBindings);
-
         if (displayKeyBindings) {
             setDisplayKeyBindings(false);
         } else {
@@ -169,35 +167,15 @@ const Art = () => {
     }, [reset]);
 
     const draw = () => {
-        console.log(pause, origin, amplitude);
-
         if (pause || origin.length < 2) return;
 
         if (!context) return;
         t = tRef.current - 0.1;
 
-        let X =
-            amplitude[0] *
-                Math.exp(-airResistance * t) *
-                Math.sin(angularFrequency * t) +
-            origin[0];
-        let Y =
-            amplitude[1] *
-                Math.exp(-airResistance * t) *
-                Math.cos(angularFrequency * t) +
-            origin[1];
+        let [X, Y] = getCoords(amplitude, origin);
 
         const animate = () => {
-            const newX =
-                amplitude[0] *
-                    Math.exp(-airResistance * t) *
-                    Math.sin(angularFrequency * t) +
-                origin[0];
-            const newY =
-                amplitude[1] *
-                    Math.exp(-airResistance * t) *
-                    Math.cos(angularFrequency * t) +
-                origin[1];
+            const [newX, newY] = getCoords(amplitude, origin);
 
             // airResistance = Math.random() * 0.0005 + 0.005;
 
@@ -218,6 +196,19 @@ const Art = () => {
         };
 
         animate();
+    };
+
+    const getCoords = (amplitude: Array<number>, origin: Array<number>) => {
+        return [
+            amplitude[0] *
+                Math.exp(-airResistance * t) *
+                Math.sin(angularFrequency * t) +
+                origin[0],
+            amplitude[1] *
+                Math.exp(-airResistance * t) *
+                Math.cos(angularFrequency * t) +
+                origin[1],
+        ];
     };
 
     return (
