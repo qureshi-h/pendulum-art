@@ -21,7 +21,7 @@ const Art = () => {
     const [amplitude, setAmplitude] = useState<Array<number>>([]);
 
     const [colorChange, setColorChange] = useState<boolean>(false);
-    const [color, setColor] = useState<string>("#aabbcc");
+    const [color, setColor] = useState<string>("#000000");
 
     const [context, setContext] = useState<CanvasRenderingContext2D>();
     const rafIDRef = useRef<number>();
@@ -35,8 +35,12 @@ const Art = () => {
     const handleColourChange = () => {
         if (colorChange) {
             setColorChange(false);
+            setReady(true);
         } else {
             if (displayKeyBindings) setDisplayKeyBindings(false);
+            console.log("Login set to false");
+
+            setReady(false);
             setColorChange(true);
         }
     };
@@ -98,13 +102,15 @@ const Art = () => {
     };
 
     const handleMouseDown = (e: any) => {
-        if (ready) {
+        console.log(ready, colorChange);
+
+        if (ready && !colorChange) {
             setOrigin([e.clientX, e.clientY]);
         }
     };
 
     const handleMouseUp = (e: any) => {
-        if (ready) {
+        if (ready && !colorChange) {
             setEnd([e.clientX, e.clientY]);
         }
     };
